@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snakepit - Debug Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .info {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        #browserInfo {
+            white-space: pre-wrap;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Snakepit - Debug Page</h1>
+        
+        <div class="info">
+            This page helps diagnose issues with the Snakepit game running in web browsers.
+        </div>
+        
+        <h2>Browser Information</h2>
+        <div id="browserInfo"></div>
+        
+        <h2>WebAssembly Support</h2>
+        <div id="wasmSupport"></div>
+        
+        <h2>Actions</h2>
+        <a href="index.html" class="button">Launch Game</a>
+        <a href="https://github.com/kentwar/snakepitc64" class="button">View Source Code</a>
+        
+        <h2>Troubleshooting</h2>
+        <ul>
+            <li>If the game shows a black screen, try clicking on the canvas or refreshing the page.</li>
+            <li>Make sure you're using a modern browser with WebAssembly support.</li>
+            <li>If using Safari on iOS, make sure JavaScript is enabled.</li>
+            <li>Try disabling any content blockers or browser extensions.</li>
+            <li>Check your browser's console for error messages (F12 or right-click > Inspect > Console).</li>
+        </ul>
+        
+        <h2>Compatible Browsers</h2>
+        <ul>
+            <li>Chrome 57+</li>
+            <li>Firefox 53+</li>
+            <li>Safari 11+</li>
+            <li>Edge 16+</li>
+            <li>Opera 44+</li>
+        </ul>
+    </div>
+    
+    <script>
+        // Display browser information
+        function getBrowserInfo() {
+            const browserInfo = document.getElementById('browserInfo');
+            browserInfo.innerHTML = `
+User Agent: ${navigator.userAgent}
+Platform: ${navigator.platform}
+Languages: ${navigator.languages || navigator.language}
+Cookies Enabled: ${navigator.cookieEnabled}
+Online: ${navigator.onLine}
+Screen Resolution: ${window.screen.width} x ${window.screen.height}
+Window Size: ${window.innerWidth} x ${window.innerHeight}
+Device Pixel Ratio: ${window.devicePixelRatio}
+`;
+        }
+        
+        // Check WebAssembly support
+        function checkWasmSupport() {
+            const wasmSupport = document.getElementById('wasmSupport');
+            if (typeof WebAssembly === 'object') {
+                wasmSupport.innerHTML = '<p style="color: green;">✅ WebAssembly is supported in this browser.</p>';
+                
+                // Check for dynamic import support
+                try {
+                    new Function('return import("")');
+                    wasmSupport.innerHTML += '<p style="color: green;">✅ Dynamic imports are supported.</p>';
+                } catch (e) {
+                    wasmSupport.innerHTML += '<p style="color: red;">❌ Dynamic imports are NOT supported.</p>';
+                }
+                
+                // Check for SharedArrayBuffer support
+                if (typeof SharedArrayBuffer !== 'undefined') {
+                    wasmSupport.innerHTML += '<p style="color: green;">✅ SharedArrayBuffer is supported.</p>';
+                } else {
+                    wasmSupport.innerHTML += '<p style="color: red;">❌ SharedArrayBuffer is NOT supported.</p>';
+                }
+            } else {
+                wasmSupport.innerHTML = '<p style="color: red;">❌ WebAssembly is NOT supported in this browser. The game will not run.</p>';
+            }
+        }
+        
+        // Run diagnostics
+        getBrowserInfo();
+        checkWasmSupport();
+    </script>
+</body>
+</html> 

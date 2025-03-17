@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Snakepit - Alternative Options</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        .info {
+            background-color: #e7f3fe;
+            border-left: 6px solid #2196F3;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .warning {
+            background-color: #ffeb3b;
+            border-left: 6px solid #ffc107;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        pre {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Snakepit - Alternative Options</h1>
+        
+        <div class="info">
+            If the web version of Snakepit isn't working properly in your browser, you have several options to play the game.
+        </div>
+        
+        <h2>Option 1: Try Another Browser</h2>
+        <p>The web version works best on these browsers:</p>
+        <ul>
+            <li>Google Chrome (recommended)</li>
+            <li>Mozilla Firefox</li>
+            <li>Microsoft Edge</li>
+        </ul>
+        <a href="index.html" class="button">Try Again</a>
+        <a href="debug.html" class="button">Run Diagnostics</a>
+        
+        <h2>Option 2: Download and Run Locally</h2>
+        <p>You can download the game and run it on your computer:</p>
+        <ol>
+            <li>Make sure you have Python 3.6+ installed</li>
+            <li>Clone or download the repository: <a href="https://github.com/kentwar/snakepitc64">https://github.com/kentwar/snakepitc64</a></li>
+            <li>Install the required dependencies:</li>
+        </ol>
+        <pre>pip install pygame numpy</pre>
+        <li>Run the game:</li>
+        <pre>python -m main</pre>
+        
+        <div class="warning">
+            <strong>Note:</strong> The desktop version requires a keyboard to play.
+        </div>
+        
+        <h2>Option 3: Report an Issue</h2>
+        <p>If you're having trouble with the game, you can:</p>
+        <ul>
+            <li>Check browser console for errors (F12 or right-click > Inspect > Console)</li>
+            <li>Report an issue on <a href="https://github.com/kentwar/snakepitc64/issues">GitHub</a></li>
+            <li>Try the <a href="debug.html">diagnostics page</a> for more information</li>
+        </ul>
+    </div>
+</body>
+</html> 
