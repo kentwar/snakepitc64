@@ -50,6 +50,16 @@
             margin-bottom: 10px;
             color: #4CAF50;
         }
+        .recommended {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
         .option-description {
             font-size: 14px;
             color: #ccc;
@@ -81,16 +91,35 @@
         .github-link:hover {
             text-decoration: underline;
         }
+        .alert {
+            background-color: #444;
+            border-left: 6px solid #FFC107;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 800px;
+            text-align: left;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Snakepit C64</h1>
-        <div class="subtitle">A modern Python remake of the classic Commodore 64 game</div>
+        <div class="subtitle">A modern remake of the classic Commodore 64 game</div>
         
-        <p>Due to technical issues with the web deployment, we've provided several ways to play:</p>
+        <div class="alert">
+            <strong>Important:</strong> Due to technical issues with the Pygbag JavaScript framework, we've provided several alternative ways to play the game. The recommended option is the Basic Canvas Version which works in all modern browsers.
+        </div>
         
         <div class="options-container">
+            <div class="option-card">
+                <div class="option-title">Basic Canvas Version <span class="recommended">RECOMMENDED</span></div>
+                <div class="option-description">
+                    A pure JavaScript/Canvas version that works in any browser with no external dependencies. The most reliable way to play online.
+                </div>
+                <a href="basic.html" class="button">Play Basic Version</a>
+            </div>
+            
             <div class="option-card">
                 <div class="option-title">Web Version (Manual)</div>
                 <div class="option-description">
@@ -118,7 +147,7 @@
             <div class="option-card">
                 <div class="option-title">Download Version</div>
                 <div class="option-description">
-                    Download the game to play locally on your computer with Python. The most reliable way to experience the game.
+                    Download the game to play locally on your computer with Python. The most reliable way to experience the full game.
                 </div>
                 <a href="direct.html" class="button">Download Options</a>
             </div>
@@ -142,7 +171,7 @@
         
         <div class="footer">
             <p>Having trouble? Visit the <a href="fallback.html" class="github-link">alternative options page</a> or the <a href="https://github.com/kentwar/snakepitc64/issues" class="github-link">GitHub Issues page</a>.</p>
-            <p>Created with Pygame and Pygbag | View on <a href="https://github.com/kentwar/snakepitc64" class="github-link">GitHub</a></p>
+            <p>Created with ❤️ | View on <a href="https://github.com/kentwar/snakepitc64" class="github-link">GitHub</a></p>
         </div>
     </div>
 </body>

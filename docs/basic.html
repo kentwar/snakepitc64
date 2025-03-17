@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snakepit C64 - Basic Version</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #111;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        canvas {
+            border: 4px solid #333;
+            background-color: #000;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .controls {
+            margin-top: 30px;
+            background-color: #222;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 500px;
+            text-align: center;
+        }
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #4CAF50;
+            margin-top: 10px;
+        }
+        .score-display {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .key {
+            display: inline-block;
+            background-color: #333;
+            color: white;
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snakepit C64 - Basic Version</h1>
+    
+    <div class="score-display">
+        Score: <span id="score">0</span> | Level: <span id="level">1</span>
+    </div>
+    
+    <canvas id="gameCanvas" width="640" height="480"></canvas>
+    
+    <div class="controls">
+        <button id="startButton">Start Game</button>
+        <button id="pauseButton">Pause</button>
+        <button id="resetButton">Reset</button>
+        
+        <h2>Controls</h2>
+        <p>
+            <span class="key">←</span> <span class="key">↑</span> <span class="key">↓</span> <span class="key">→</span> to move
+            | <span class="key">P</span> to pause
+        </p>
+    </div>
+    
+    <script>
+        // Game variables
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const levelElement = document.getElementById('level');
+        const startButton = document.getElementById('startButton');
+        const pauseButton = document.getElementById('pauseButton');
+        const resetButton = document.getElementById('resetButton');
+        
+        const GRID_SIZE = 20;
+        const GRID_WIDTH = canvas.width / GRID_SIZE;
+        const GRID_HEIGHT = canvas.height / GRID_SIZE;
+        
+        let player = { x: 5, y: 5 };
+        let snakes = [];
+        let eggs = [];
+        let walls = [];
+        let score = 0;
+        let level = 1;
+        let gameOver = false;
+        let paused = false;
+        let gameLoop = null;
+        
+        // Initialize game
+        function initGame() {
+            // Reset variables
+            player = { x: 5, y: 5 };
+            snakes = [];
+            eggs = [];
+            walls = [];
+            score = 0;
+            level = 1;
+            gameOver = false;
+            paused = false;
+            
+            // Create walls
+            createWalls();
+            
+            // Create snakes
+            for (let i = 0; i < 3; i++) {
+                createSnake();
+            }
+            
+            // Create eggs
+            for (let i = 0; i < 5; i++) {
+                createEgg();
+            }
+            
+            // Update display
+            scoreElement.textContent = score;
+            levelElement.textContent = level;
+            
+            // Draw game
+            drawGame();
+        }
+        
+        // Create walls
+        function createWalls() {
+            // Border walls
+            for (let x = 0; x < GRID_WIDTH; x++) {
+                walls.push({ x, y: 0 });
+                walls.push({ x, y: GRID_HEIGHT - 1 });
+            }
+            for (let y = 0; y < GRID_HEIGHT; y++) {
+                walls.push({ x: 0, y });
+                walls.push({ x: GRID_WIDTH - 1, y });
+            }
+            
+            // Interior walls
+            for (let x = 8; x < 12; x++) {
+                walls.push({ x, y: 8 });
+                walls.push({ x, y: 16 });
+            }
+            for (let y = 8; y < 17; y++) {
+                walls.push({ x: 8, y });
+                walls.push({ x: 20, y });
+            }
+        }
+        
+        // Create a snake at a random position
+        function createSnake() {
+            let x, y;
+            do {
+                x = Math.floor(Math.random() * (GRID_WIDTH - 4)) + 2;
+                y = Math.floor(Math.random() * (GRID_HEIGHT - 4)) + 2;
+            } while (isPositionOccupied(x, y));
+            
+            snakes.push({ 
+                x, 
+                y, 
+                direction: Math.floor(Math.random() * 4),
+                lastMove: 0
+            });
+        }
+        
+        // Create an egg at a random position
+        function createEgg() {
+            let x, y;
+            do {
+                x = Math.floor(Math.random() * (GRID_WIDTH - 4)) + 2;
+                y = Math.floor(Math.random() * (GRID_HEIGHT - 4)) + 2;
+            } while (isPositionOccupied(x, y));
+            
+            eggs.push({ x, y });
+        }
+        
+        // Check if a position is occupied
+        function isPositionOccupied(x, y) {
+            // Check player
+            if (player.x === x && player.y === y) return true;
+            
+            // Check snakes
+            for (const snake of snakes) {
+                if (snake.x === x && snake.y === y) return true;
+            }
+            
+            // Check eggs
+            for (const egg of eggs) {
+                if (egg.x === x && egg.y === y) return true;
+            }
+            
+            // Check walls
+            for (const wall of walls) {
+                if (wall.x === x && wall.y === y) return true;
+            }
+            
+            return false;
+        }
+        
+        // Draw game
+        function drawGame() {
+            // Clear canvas
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw walls
+            ctx.fillStyle = '#654321';
+            for (const wall of walls) {
+                ctx.fillRect(wall.x * GRID_SIZE, wall.y * GRID_SIZE, GRID_SIZE, GRID_SIZE);
+            }
+            
+            // Draw eggs
+            ctx.fillStyle = '#FF6347';
+            for (const egg of eggs) {
+                ctx.beginPath();
+                ctx.arc(
+                    egg.x * GRID_SIZE + GRID_SIZE / 2, 
+                    egg.y * GRID_SIZE + GRID_SIZE / 2, 
+                    GRID_SIZE / 2 - 2, 
+                    0, 
+                    Math.PI * 2
+                );
+                ctx.fill();
+            }
+            
+            // Draw snakes
+            ctx.fillStyle = '#00FF00';
+            for (const snake of snakes) {
+                ctx.beginPath();
+                ctx.arc(
+                    snake.x * GRID_SIZE + GRID_SIZE / 2, 
+                    snake.y * GRID_SIZE + GRID_SIZE / 2, 
+                    GRID_SIZE / 2 - 2, 
+                    0, 
+                    Math.PI * 2
+                );
+                ctx.fill();
+            }
+            
+            // Draw player
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(
+                player.x * GRID_SIZE + GRID_SIZE / 2, 
+                player.y * GRID_SIZE + GRID_SIZE / 2, 
+                GRID_SIZE / 2 - 2, 
+                0, 
+                Math.PI * 2
+            );
+            ctx.fill();
+            
+            // Draw game over
+            if (gameOver) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#FF0000';
+                ctx.font = '48px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2);
+                
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '24px Arial';
+                ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 40);
+                ctx.fillText('Press Space to restart', canvas.width / 2, canvas.height / 2 + 80);
+            }
+            
+            // Draw paused
+            if (paused && !gameOver) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.fillStyle = '#FFFFFF';
+                ctx.font = '48px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
+                ctx.font = '24px Arial';
+                ctx.fillText('Press P to resume', canvas.width / 2, canvas.height / 2 + 40);
+            }
+        }
+        
+        // Update game
+        function updateGame() {
+            if (gameOver || paused) return;
+            
+            // Move snakes
+            const now = Date.now();
+            for (const snake of snakes) {
+                if (now - snake.lastMove > 500) {
+                    snake.lastMove = now;
+                    
+                    // Decide direction
+                    if (Math.random() < 0.5) {
+                        // Random direction
+                        snake.direction = Math.floor(Math.random() * 4);
+                    } else {
+                        // Chase player
+                        const dx = player.x - snake.x;
+                        const dy = player.y - snake.y;
+                        
+                        if (Math.abs(dx) > Math.abs(dy)) {
+                            snake.direction = dx > 0 ? 1 : 3; // right or left
+                        } else {
+                            snake.direction = dy > 0 ? 2 : 0; // down or up
+                        }
+                    }
+                    
+                    // Move snake
+                    let newX = snake.x;
+                    let newY = snake.y;
+                    
+                    switch (snake.direction) {
+                        case 0: // Up
+                            newY--;
+                            break;
+                        case 1: // Right
+                            newX++;
+                            break;
+                        case 2: // Down
+                            newY++;
+                            break;
+                        case 3: // Left
+                            newX--;
+                            break;
+                    }
+                    
+                    // Check if new position is valid
+                    let validMove = true;
+                    for (const wall of walls) {
+                        if (wall.x === newX && wall.y === newY) {
+                            validMove = false;
+                            break;
+                        }
+                    }
+                    
+                    // Check if collides with another snake
+                    for (const otherSnake of snakes) {
+                        if (otherSnake !== snake && otherSnake.x === newX && otherSnake.y === newY) {
+                            validMove = false;
+                            break;
+                        }
+                    }
+                    
+                    // Move if valid
+                    if (validMove) {
+                        snake.x = newX;
+                        snake.y = newY;
+                        
+                        // Check collision with player
+                        if (snake.x === player.x && snake.y === player.y) {
+                            gameOver = true;
+                        }
+                    }
+                }
+            }
+            
+            // Check for egg collection
+            for (let i = eggs.length - 1; i >= 0; i--) {
+                if (eggs[i].x === player.x && eggs[i].y === player.y) {
+                    // Remove egg
+                    eggs.splice(i, 1);
+                    
+                    // Increase score
+                    score += 10;
+                    scoreElement.textContent = score;
+                    
+                    // Create new egg
+                    createEgg();
+                    
+                    // Check for level up
+                    if (score % 50 === 0) {
+                        level++;
+                        levelElement.textContent = level;
+                        createSnake();
+                    }
+                }
+            }
+            
+            // Draw game
+            drawGame();
+        }
+        
+        // Start game loop
+        function startGameLoop() {
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(updateGame, 100);
+        }
+        
+        // Handle keyboard input
+        document.addEventListener('keydown', (event) => {
+            if (gameOver) {
+                if (event.code === 'Space') {
+                    initGame();
+                    startGameLoop();
+                }
+                return;
+            }
+            
+            if (event.code === 'KeyP') {
+                paused = !paused;
+                drawGame();
+                return;
+            }
+            
+            if (paused) return;
+            
+            let newX = player.x;
+            let newY = player.y;
+            
+            switch (event.code) {
+                case 'ArrowUp':
+                    newY--;
+                    break;
+                case 'ArrowRight':
+                    newX++;
+                    break;
+                case 'ArrowDown':
+                    newY++;
+                    break;
+                case 'ArrowLeft':
+                    newX--;
+                    break;
+                default:
+                    return;
+            }
+            
+            // Check if new position is valid
+            let validMove = true;
+            for (const wall of walls) {
+                if (wall.x === newX && wall.y === newY) {
+                    validMove = false;
+                    break;
+                }
+            }
+            
+            // Move if valid
+            if (validMove) {
+                player.x = newX;
+                player.y = newY;
+                
+                // Check collision with snakes
+                for (const snake of snakes) {
+                    if (snake.x === player.x && snake.y === player.y) {
+                        gameOver = true;
+                        break;
+                    }
+                }
+                
+                // Update game
+                updateGame();
+            }
+        });
+        
+        // Button event listeners
+        startButton.addEventListener('click', () => {
+            if (gameOver || !gameLoop) {
+                initGame();
+                startGameLoop();
+            } else if (paused) {
+                paused = false;
+                drawGame();
+            }
+        });
+        
+        pauseButton.addEventListener('click', () => {
+            paused = !paused;
+            drawGame();
+        });
+        
+        resetButton.addEventListener('click', () => {
+            initGame();
+            startGameLoop();
+        });
+        
+        // Initialize and start game
+        initGame();
+        canvas.focus();
+    </script>
+</body>
+</html> 
