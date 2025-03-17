@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snakepit C64 Remake</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: white;
+            margin: 0;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        .subtitle {
+            font-size: 18px;
+            margin-bottom: 30px;
+            color: #aaa;
+        }
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin: 40px 0;
+        }
+        .option-card {
+            background-color: #333;
+            border-radius: 8px;
+            padding: 20px;
+            width: 280px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+        }
+        .option-card:hover {
+            transform: translateY(-5px);
+        }
+        .option-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        .option-description {
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 20px;
+            height: 80px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .footer {
+            margin-top: 60px;
+            font-size: 14px;
+            color: #888;
+        }
+        .github-link {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        .github-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Snakepit C64</h1>
+        <div class="subtitle">A modern Python remake of the classic Commodore 64 game</div>
+        
+        <p>Due to technical issues with the web deployment, we've provided several ways to play:</p>
+        
+        <div class="options-container">
+            <div class="option-card">
+                <div class="option-title">Web Version (Manual)</div>
+                <div class="option-description">
+                    Launch the Pygame web version in an iframe, which provides better isolation from JavaScript errors.
+                </div>
+                <a href="manual.html" class="button">Launch Manual Version</a>
+            </div>
+            
+            <div class="option-card">
+                <div class="option-title">Web Fallback Version</div>
+                <div class="option-description">
+                    A simplified JavaScript version that works in any browser without requiring Python. Limited features but similar gameplay.
+                </div>
+                <a href="backup.html" class="button">Play Web Fallback</a>
+            </div>
+            
+            <div class="option-card">
+                <div class="option-title">Original Web Version</div>
+                <div class="option-description">
+                    The original Pygame/Pygbag web build. May have issues in some browsers but provides the full experience.
+                </div>
+                <a href="index.html" class="button">Try Original Version</a>
+            </div>
+            
+            <div class="option-card">
+                <div class="option-title">Download Version</div>
+                <div class="option-description">
+                    Download the game to play locally on your computer with Python. The most reliable way to experience the game.
+                </div>
+                <a href="direct.html" class="button">Download Options</a>
+            </div>
+            
+            <div class="option-card">
+                <div class="option-title">Diagnostics</div>
+                <div class="option-description">
+                    Check your browser compatibility and find solutions for any issues you might be experiencing.
+                </div>
+                <a href="debug.html" class="button">Run Diagnostics</a>
+            </div>
+            
+            <div class="option-card">
+                <div class="option-title">View Source Code</div>
+                <div class="option-description">
+                    Browse or download the complete source code of the game on GitHub.
+                </div>
+                <a href="https://github.com/kentwar/snakepitc64" class="button">GitHub Repository</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Having trouble? Visit the <a href="fallback.html" class="github-link">alternative options page</a> or the <a href="https://github.com/kentwar/snakepitc64/issues" class="github-link">GitHub Issues page</a>.</p>
+            <p>Created with Pygame and Pygbag | View on <a href="https://github.com/kentwar/snakepitc64" class="github-link">GitHub</a></p>
+        </div>
+    </div>
+</body>
+</html> 
