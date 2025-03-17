@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snakepit C64 - Simple Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #111;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+        #gameContainer {
+            width: 800px;
+            height: 600px;
+            margin: 0 auto;
+            position: relative;
+            background-color: #000;
+            border: 3px solid #333;
+            overflow: hidden;
+        }
+        .gameScene {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .player {
+            width: 20px;
+            height: 20px;
+            background-color: #4CAF50;
+            position: absolute;
+            transition: all 0.1s ease;
+        }
+        .wall {
+            background-color: #555;
+            position: absolute;
+        }
+        .snake {
+            width: 20px;
+            height: 20px;
+            background-color: #f44336;
+            position: absolute;
+            border-radius: 3px;
+        }
+        .egg {
+            width: 15px;
+            height: 15px;
+            background-color: #ffeb3b;
+            position: absolute;
+            border-radius: 50%;
+        }
+        .score {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            color: white;
+        }
+        .gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            color: white;
+            background-color: rgba(0,0,0,0.7);
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+        .controls {
+            margin: 20px auto;
+            background-color: #222;
+            padding: 15px;
+            width: 800px;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .instructions {
+            background-color: #333;
+            padding: 15px;
+            margin: 20px auto;
+            text-align: left;
+            width: 800px;
+            border-left: 5px solid #4CAF50;
+        }
+        .navigation {
+            margin-top: 20px;
+        }
+        .navigation a {
+            color: #4CAF50;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snakepit C64</h1>
+    <div class="subtitle">JavaScript Edition</div>
+    
+    <div id="gameContainer">
+        <div class="gameScene">
+            <div class="score">Score: <span id="scoreValue">0</span></div>
+            <div class="gameOver">
+                Game Over<br>
+                <span id="finalScore">Score: 0</span><br>
+                <button id="restartButton">Play Again</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button id="startButton">Start Game</button>
+        <button id="resetButton">Reset Game</button>
+        <button id="downloadButton">Download APK</button>
+    </div>
+    
+    <div class="instructions">
+        <h3>How to Play:</h3>
+        <p><strong>Controls:</strong> Arrow keys to move</p>
+        <p><strong>Goal:</strong> Collect eggs while avoiding snakes and walls</p>
+        <p><strong>Note:</strong> This is a simplified JavaScript version. For the full Python experience, try downloading the APK.</p>
+    </div>
+    
+    <div class="navigation">
+        <a href="index2.html">Back to Options</a> | 
+        <a href="final.html">Try Direct Mode</a>
+    </div>
+    
+    <script>
+        // Game variables
+        let player;
+        let walls = [];
+        let snakes = [];
+        let eggs = [];
+        let score = 0;
+        let isGameRunning = false;
+        let gameInterval;
+        
+        // Get game elements
+        let gameScene = document.querySelector('.gameScene');
+        let scoreValue = document.getElementById('scoreValue');
+        let finalScore = document.getElementById('finalScore');
+        let gameOver = document.querySelector('.gameOver');
+        
+        // Initialize game
+        function initGame() {
+            // Clear existing elements
+            gameScene.innerHTML = '<div class="score">Score: <span id="scoreValue">0</span></div>';
+            scoreValue = document.getElementById('scoreValue');
+            
+            // Reset game state
+            walls = [];
+            snakes = [];
+            eggs = [];
+            score = 0;
+            
+            // Reset display
+            gameOver.style.display = 'none';
+            scoreValue.textContent = '0';
+            
+            // Create walls
+            createWalls();
+            
+            // Create player
+            createPlayer();
+            
+            // Create initial snakes and eggs
+            for (let i = 0; i < 3; i++) {
+                createSnake();
+            }
+            
+            for (let i = 0; i < 5; i++) {
+                createEgg();
+            }
+            
+            // Start game loop
+            isGameRunning = true;
+            gameInterval = setInterval(updateGame, 100);
+        }
+        
+        // Create walls around the game area
+        function createWalls() {
+            // Top wall
+            createWall(0, 0, 800, 20);
+            
+            // Bottom wall
+            createWall(0, 580, 800, 20);
+            
+            // Left wall
+            createWall(0, 0, 20, 600);
+            
+            // Right wall
+            createWall(780, 0, 20, 600);
+            
+            // Additional walls
+            createWall(200, 100, 400, 20);
+            createWall(150, 200, 20, 200);
+            createWall(400, 300, 200, 20);
+            createWall(600, 350, 20, 150);
+        }
+        
+        // Create a wall element
+        function createWall(x, y, width, height) {
+            const wall = document.createElement('div');
+            wall.className = 'wall';
+            wall.style.left = x + 'px';
+            wall.style.top = y + 'px';
+            wall.style.width = width + 'px';
+            wall.style.height = height + 'px';
+            gameScene.appendChild(wall);
+            
+            walls.push({
+                element: wall,
+                x: x,
+                y: y,
+                width: width,
+                height: height
+            });
+        }
+        
+        // Create player
+        function createPlayer() {
+            player = document.createElement('div');
+            player.className = 'player';
+            gameScene.appendChild(player);
+            
+            // Set initial position
+            player.x = 50;
+            player.y = 50;
+            updatePlayerPosition();
+        }
+        
+        // Update player position
+        function updatePlayerPosition() {
+            player.style.left = player.x + 'px';
+            player.style.top = player.y + 'px';
+        }
+        
+        // Create a snake
+        function createSnake() {
+            const snake = document.createElement('div');
+            snake.className = 'snake';
+            gameScene.appendChild(snake);
+            
+            // Random position (avoiding walls)
+            let x, y;
+            let validPosition = false;
+            
+            while (!validPosition) {
+                x = Math.floor(Math.random() * 740) + 30;
+                y = Math.floor(Math.random() * 540) + 30;
+                
+                // Check if position overlaps with walls
+                validPosition = true;
+                for (const wall of walls) {
+                    if (
+                        x < wall.x + wall.width &&
+                        x + 20 > wall.x &&
+                        y < wall.y + wall.height &&
+                        y + 20 > wall.y
+                    ) {
+                        validPosition = false;
+                        break;
+                    }
+                }
+            }
+            
+            // Set position
+            snake.style.left = x + 'px';
+            snake.style.top = y + 'px';
+            
+            // Set random direction
+            const dirX = Math.random() > 0.5 ? 1 : -1;
+            const dirY = Math.random() > 0.5 ? 1 : -1;
+            
+            // Add to snakes array
+            snakes.push({
+                element: snake,
+                x: x,
+                y: y,
+                dirX: dirX,
+                dirY: dirY,
+                speed: Math.random() * 3 + 2
+            });
+        }
+        
+        // Create an egg
+        function createEgg() {
+            const egg = document.createElement('div');
+            egg.className = 'egg';
+            gameScene.appendChild(egg);
+            
+            // Random position (avoiding walls)
+            let x, y;
+            let validPosition = false;
+            
+            while (!validPosition) {
+                x = Math.floor(Math.random() * 750) + 25;
+                y = Math.floor(Math.random() * 550) + 25;
+                
+                // Check if position overlaps with walls
+                validPosition = true;
+                for (const wall of walls) {
+                    if (
+                        x < wall.x + wall.width &&
+                        x + 15 > wall.x &&
+                        y < wall.y + wall.height &&
+                        y + 15 > wall.y
+                    ) {
+                        validPosition = false;
+                        break;
+                    }
+                }
+            }
+            
+            // Set position
+            egg.style.left = x + 'px';
+            egg.style.top = y + 'px';
+            
+            // Add to eggs array
+            eggs.push({
+                element: egg,
+                x: x,
+                y: y
+            });
+        }
+        
+        // Update game state
+        function updateGame() {
+            if (!isGameRunning) return;
+            
+            // Move snakes
+            for (const snake of snakes) {
+                // Update position
+                snake.x += snake.dirX * snake.speed;
+                snake.y += snake.dirY * snake.speed;
+                
+                // Check for wall collision
+                for (const wall of walls) {
+                    if (
+                        snake.x < wall.x + wall.width &&
+                        snake.x + 20 > wall.x &&
+                        snake.y < wall.y + wall.height &&
+                        snake.y + 20 > wall.y
+                    ) {
+                        // Reverse direction
+                        if (snake.x < wall.x || snake.x + 20 > wall.x + wall.width) {
+                            snake.dirX *= -1;
+                        }
+                        if (snake.y < wall.y || snake.y + 20 > wall.y + wall.height) {
+                            snake.dirY *= -1;
+                        }
+                    }
+                }
+                
+                // Keep within bounds
+                if (snake.x < 20) {
+                    snake.x = 20;
+                    snake.dirX *= -1;
+                }
+                if (snake.x > 760) {
+                    snake.x = 760;
+                    snake.dirX *= -1;
+                }
+                if (snake.y < 20) {
+                    snake.y = 20;
+                    snake.dirY *= -1;
+                }
+                if (snake.y > 560) {
+                    snake.y = 560;
+                    snake.dirY *= -1;
+                }
+                
+                // Update element position
+                snake.element.style.left = snake.x + 'px';
+                snake.element.style.top = snake.y + 'px';
+                
+                // Check for collision with player
+                if (
+                    player.x < snake.x + 20 &&
+                    player.x + 20 > snake.x &&
+                    player.y < snake.y + 20 &&
+                    player.y + 20 > snake.y
+                ) {
+                    gameEnd();
+                }
+            }
+            
+            // Check for egg collection
+            for (let i = eggs.length - 1; i >= 0; i--) {
+                const egg = eggs[i];
+                
+                if (
+                    player.x < egg.x + 15 &&
+                    player.x + 20 > egg.x &&
+                    player.y < egg.y + 15 &&
+                    player.y + 20 > egg.y
+                ) {
+                    // Collect egg
+                    gameScene.removeChild(egg.element);
+                    eggs.splice(i, 1);
+                    
+                    // Increase score
+                    score += 10;
+                    scoreValue.textContent = score;
+                    
+                    // Create new egg
+                    createEgg();
+                    
+                    // Add new snake every 50 points
+                    if (score % 50 === 0) {
+                        createSnake();
+                    }
+                }
+            }
+        }
+        
+        // End the game
+        function gameEnd() {
+            isGameRunning = false;
+            clearInterval(gameInterval);
+            
+            // Show game over screen
+            gameOver.style.display = 'block';
+            finalScore.textContent = 'Score: ' + score;
+        }
+        
+        // Key controls
+        document.addEventListener('keydown', function(event) {
+            if (!isGameRunning) return;
+            
+            const step = 20;
+            let newX = player.x;
+            let newY = player.y;
+            
+            switch (event.key) {
+                case 'ArrowUp':
+                    newY -= step;
+                    break;
+                case 'ArrowDown':
+                    newY += step;
+                    break;
+                case 'ArrowLeft':
+                    newX -= step;
+                    break;
+                case 'ArrowRight':
+                    newX += step;
+                    break;
+            }
+            
+            // Check for wall collisions
+            let canMove = true;
+            for (const wall of walls) {
+                if (
+                    newX < wall.x + wall.width &&
+                    newX + 20 > wall.x &&
+                    newY < wall.y + wall.height &&
+                    newY + 20 > wall.y
+                ) {
+                    canMove = false;
+                    break;
+                }
+            }
+            
+            // Update position if valid
+            if (canMove) {
+                player.x = newX;
+                player.y = newY;
+                updatePlayerPosition();
+            }
+        });
+        
+        // Start button
+        document.getElementById('startButton').addEventListener('click', function() {
+            if (!isGameRunning) {
+                initGame();
+                this.textContent = 'Game Running';
+            }
+        });
+        
+        // Reset button
+        document.getElementById('resetButton').addEventListener('click', function() {
+            if (isGameRunning) {
+                clearInterval(gameInterval);
+            }
+            initGame();
+            document.getElementById('startButton').textContent = 'Game Running';
+        });
+        
+        // Restart button in game over screen
+        document.getElementById('restartButton').addEventListener('click', function() {
+            initGame();
+            document.getElementById('startButton').textContent = 'Game Running';
+        });
+        
+        // Download button
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            window.location.href = 'massdb8.apk';
+        });
+    </script>
+</body>
+</html> 

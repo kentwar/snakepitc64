@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Snakepit C64 - Fixed Version</title>
+    <title>Snakepit C64 - Ultra Simple Launcher</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -33,16 +33,6 @@
             background-color: #000;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             overflow: hidden;
-        }
-        #loadingMessage {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 24px;
-            color: white;
-            text-align: center;
-            width: 80%;
         }
         #controls {
             margin-top: 20px;
@@ -84,302 +74,116 @@
         .navigation a:hover {
             text-decoration: underline;
         }
-        #consoleOutput {
-            background-color: #222;
-            border: 1px solid #444;
-            border-radius: 4px;
-            padding: 10px;
-            width: 90%;
-            height: 120px;
-            overflow-y: auto;
-            font-family: monospace;
-            margin-top: 10px;
-            color: #ddd;
-            display: none;
-        }
-        .loading-spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: #4CAF50;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 10px;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        #loadingMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
     <h1>Snakepit C64</h1>
-    <div class="subtitle">Original Python Version with JavaScript Fix</div>
+    <div class="subtitle">Ultra Simple Launcher</div>
     
     <div id="gameContainer">
         <div id="loadingMessage">
-            <div class="loading-spinner"></div>
-            <div>Loading Python game engine...</div>
-            <div style="font-size: 14px; margin-top: 10px; color: #aaa;">This may take a few moments</div>
+            <p>Click Start Game to begin</p>
         </div>
     </div>
     
     <div id="controls">
         <button id="startButton">Start Game</button>
-        <button id="reloadButton">Reload</button>
-        <button id="showConsoleButton">Toggle Console</button>
+        <button id="reloadButton">Reload Page</button>
+        <button id="downloadButton">Download APK</button>
         
         <div class="info">
             <p><strong>Controls:</strong> Arrow keys to move, P to pause, ESC to quit</p>
             <p><strong>Note:</strong> Click on the game area to capture keyboard focus</p>
         </div>
-        
-        <div id="consoleOutput"></div>
     </div>
     
     <div class="navigation">
         <a href="index2.html">Back to Options</a> | 
-        <a href="debug.html">Troubleshooting</a>
+        <a href="backup.html">Try Fallback Version</a>
     </div>
     
     <script>
-        // Console logging output
-        const consoleOutput = document.getElementById('consoleOutput');
-        const originalConsoleLog = console.log;
-        const originalConsoleError = console.error;
-        
-        console.log = function() {
-            // Call the original function
-            originalConsoleLog.apply(console, arguments);
+        // Start button handler
+        document.getElementById('startButton').addEventListener('click', function() {
+            // Clear the game container
+            var gameContainer = document.getElementById('gameContainer');
+            gameContainer.innerHTML = '';
             
-            // Add to our console display
-            const args = Array.from(arguments);
-            const message = args.map(arg => {
-                if (typeof arg === 'object') {
-                    return JSON.stringify(arg);
-                } else {
-                    return String(arg);
-                }
-            }).join(' ');
+            // Disable the button
+            this.disabled = true;
+            this.textContent = 'Starting...';
             
-            if (consoleOutput) {
-                consoleOutput.innerHTML += `<div style="color: #4CAF50;">[LOG] ${message}</div>`;
-                consoleOutput.scrollTop = consoleOutput.scrollHeight;
-            }
-        };
-        
-        console.error = function() {
-            // Call the original function
-            originalConsoleError.apply(console, arguments);
+            // Create iframe for isolation
+            var gameFrame = document.createElement('iframe');
+            gameFrame.style.width = '100%';
+            gameFrame.style.height = '100%';
+            gameFrame.style.border = 'none';
+            gameContainer.appendChild(gameFrame);
             
-            // Add to our console display
-            const args = Array.from(arguments);
-            const message = args.map(arg => {
-                if (typeof arg === 'object') {
-                    return JSON.stringify(arg);
-                } else {
-                    return String(arg);
-                }
-            }).join(' ');
+            // Get iframe document
+            var frameDoc = gameFrame.contentDocument || gameFrame.contentWindow.document;
+            frameDoc.open();
             
-            if (consoleOutput) {
-                consoleOutput.innerHTML += `<div style="color: #FF6347;">[ERROR] ${message}</div>`;
-                consoleOutput.scrollTop = consoleOutput.scrollHeight;
-            }
-        };
-        
-        document.getElementById('showConsoleButton').addEventListener('click', () => {
-            consoleOutput.style.display = consoleOutput.style.display === 'none' ? 'block' : 'none';
+            // Write HTML parts to the iframe
+            frameDoc.write('<!DOCTYPE html>');
+            frameDoc.write('<html>');
+            frameDoc.write('<head>');
+            frameDoc.write('<meta charset="UTF-8">');
+            frameDoc.write('<title>Snakepit C64 Game</title>');
+            frameDoc.write('<style>');
+            frameDoc.write('html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }');
+            frameDoc.write('</style>');
+            frameDoc.write('</head>');
+            frameDoc.write('<body>');
+            
+            // Add variable patching script
+            frameDoc.write('<script>');
+            frameDoc.write('// Define variables as let instead of const to fix reassignment issues');
+            frameDoc.write('var auto_start;');
+            frameDoc.write('var auto_conf;');
+            frameDoc.write('var config;');
+            frameDoc.write('// Monkey patch Object.defineProperty');
+            frameDoc.write('var originalDefineProperty = Object.defineProperty;');
+            frameDoc.write('Object.defineProperty = function(obj, prop, descriptor) {');
+            frameDoc.write('  if (prop === "auto_start" || prop === "auto_conf" || prop === "config") {');
+            frameDoc.write('    descriptor.writable = true;');
+            frameDoc.write('  }');
+            frameDoc.write('  return originalDefineProperty(obj, prop, descriptor);');
+            frameDoc.write('};');
+            frameDoc.write('<\/script>');
+            
+            // Add the game script
+            frameDoc.write('<script ');
+            frameDoc.write('type="application/javascript" ');
+            frameDoc.write('src="https://pygame-web.github.io/archives/0.8/pythons.js" ');
+            frameDoc.write('data-archive="massdb8" ');
+            frameDoc.write('data-ume_block="0" ');
+            frameDoc.write('data-can_close="1" ');
+            frameDoc.write('data-autorun="1" ');
+            frameDoc.write('data-PYBUILD="3.12">');
+            frameDoc.write('<\/script>');
+            
+            frameDoc.write('</body>');
+            frameDoc.write('</html>');
+            frameDoc.close();
         });
         
-        // Function to create a patched version of the pythons.js script
-        function loadPatchedPythonsJs() {
-            return new Promise((resolve, reject) => {
-                console.log("Fetching pythons.js to apply patches...");
-                // First, load the original script to intercept and patch
-                fetch('https://pygame-web.github.io/archives/0.8/pythons.js')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Failed to fetch pythons.js: ${response.status} ${response.statusText}`);
-                        }
-                        return response.text();
-                    })
-                    .then(originalCode => {
-                        // Patch the code that causes "Assignment to constant variable" error
-                        console.log("Applying patches to pythons.js...");
-                        let patchedCode = originalCode;
-                        
-                        // Multiple replacements for all instances that might cause errors
-                        const replacements = [
-                            // Main function causing errors
-                            [/const\s+auto_start\s*=\s*async\s*function/g, 'let auto_start = async function'],
-                            [/const\s+auto_conf\s*=\s*function/g, 'let auto_conf = function'],
-                            
-                            // Other potential problem areas
-                            [/const\s+config\s*=/g, 'let config ='],
-                            [/const\s+srcurl\s*=/g, 'let srcurl ='],
-                            [/const\s+docurl\s*=/g, 'let docurl ='],
-                            [/const\s+interpreter\s*=/g, 'let interpreter ='],
-                            [/const\s+argv\s*=/g, 'let argv =']
-                        ];
-                        
-                        // Apply all replacements
-                        replacements.forEach(([pattern, replacement]) => {
-                            const oldCode = patchedCode;
-                            patchedCode = patchedCode.replace(pattern, replacement);
-                            
-                            // Log if replacement was made
-                            if (oldCode !== patchedCode) {
-                                console.log(`Patched: ${pattern}`);
-                            }
-                        });
-                        
-                        // Create a blob and URL for the patched script
-                        const blob = new Blob([patchedCode], {type: 'application/javascript'});
-                        const scriptURL = URL.createObjectURL(blob);
-                        
-                        console.log("Patch complete, loading modified script...");
-                        
-                        // Create script element for the patched code
-                        const scriptElement = document.createElement('script');
-                        scriptElement.src = scriptURL;
-                        scriptElement.onload = () => {
-                            console.log("✓ Patched pythons.js loaded successfully");
-                            resolve();
-                        };
-                        scriptElement.onerror = (error) => {
-                            console.error("Failed to load patched script", error);
-                            reject(error);
-                        };
-                        
-                        // Add to document to execute
-                        document.head.appendChild(scriptElement);
-                    })
-                    .catch(error => {
-                        console.error("Error fetching original script:", error);
-                        reject(error);
-                    });
-            });
-        }
+        // Reload button
+        document.getElementById('reloadButton').addEventListener('click', function() {
+            location.reload();
+        });
         
-        // Function to create and load the iframe
-        function setupGame() {
-            const gameContainer = document.getElementById('gameContainer');
-            const loadingMessage = document.getElementById('loadingMessage');
-            
-            // Create iframe for the game
-            const iframe = document.createElement('iframe');
-            iframe.style.width = '100%';
-            iframe.style.height = '100%';
-            iframe.style.border = 'none';
-            iframe.style.display = 'none'; // Hide initially
-            
-            // Create the content for the iframe
-            const iframeContent = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Snakepit C64</title>
-                    <style>
-                        body { margin: 0; overflow: hidden; background-color: #000; }
-                    </style>
-                    <script>
-                        window.addEventListener('error', function(event) {
-                            // Send error details to parent window
-                            window.parent.postMessage({
-                                type: 'error',
-                                message: event.message,
-                                source: event.filename,
-                                line: event.lineno,
-                                column: event.colno
-                            }, '*');
-                            return false;
-                        });
-                    </script>
-                </head>
-                <body>
-                    <script 
-                        id="pygbag"
-                        type="application/javascript"
-                        src="https://pygame-web.github.io/archives/0.8/pythons.js"
-                        data-archive="massdb8"
-                        data-ume_block="0"
-                        data-can_close="1"
-                        data-autorun="1"
-                        data-gui_debug="0"
-                        data-PYBUILD="3.12"
-                    ></script>
-                </body>
-                </html>
-            `;
-            
-            // Game started flag
-            let gameStarted = false;
-            
-            // Add the iframe to the page
-            gameContainer.appendChild(iframe);
-            
-            // Listen for messages from the iframe
-            window.addEventListener('message', function(event) {
-                if (event.data && event.data.type === 'error') {
-                    console.error(`Error in game: ${event.data.message} at ${event.data.source}:${event.data.line}:${event.data.column}`);
-                }
-            });
-            
-            // Use the start button to control the game
-            document.getElementById('startButton').addEventListener('click', () => {
-                if (!gameStarted) {
-                    loadingMessage.style.display = 'none';
-                    iframe.style.display = 'block';
-                    
-                    // Write the content to the iframe
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    iframeDoc.open();
-                    iframeDoc.write(iframeContent);
-                    iframeDoc.close();
-                    
-                    console.log("Game iframe initialized");
-                    
-                    // Mark game as started
-                    gameStarted = true;
-                    
-                    // Update button text
-                    document.getElementById('startButton').textContent = 'Game Running';
-                    document.getElementById('startButton').disabled = true;
-                } else {
-                    // Game is already running
-                    iframe.focus();
-                }
-            });
-            
-            // Reload button
-            document.getElementById('reloadButton').addEventListener('click', () => {
-                location.reload();
-            });
-        }
-        
-        // Initialize everything
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log("Initializing fixed version...");
-            
-            loadPatchedPythonsJs()
-                .then(() => {
-                    console.log("Patched script loaded, setting up game...");
-                    setupGame();
-                })
-                .catch(err => {
-                    console.error("Error in setup:", err);
-                    document.getElementById('loadingMessage').innerHTML = `
-                        <div style="color: #FF6347;">Error loading patched script:</div>
-                        <div>${err}</div>
-                        <div style="margin-top: 20px;">
-                            Please try the <a href="manual.html" style="color:#4CAF50;">manual version</a> or 
-                            <a href="backup.html" style="color:#4CAF50;">fallback version</a>
-                        </div>
-                    `;
-                });
+        // Download button
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            window.location.href = 'massdb8.apk';
         });
     </script>
 </body>
