@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snakepit C64 - Manual Start</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #333;
+            color: white;
+        }
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #game-canvas {
+            border: none;
+            width: 80%;
+            height: 80%;
+            background-color: black;
+        }
+        #start-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 15px 30px;
+            font-size: 24px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 10;
+        }
+        .instructions {
+            position: absolute;
+            bottom: 10px;
+            width: 80%;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Snakepit C64 Remake</h1>
+        <iframe id="game-canvas" src="about:blank" allowfullscreen></iframe>
+        <button id="start-button">Click to Start Game</button>
+        <div class="instructions">
+            <p>Controls: Arrow keys to move | P to pause | ESC to quit</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('start-button').addEventListener('click', function() {
+            // Hide the start button
+            this.style.display = 'none';
+            
+            // Set the iframe source to the game HTML
+            document.getElementById('game-canvas').src = 'index.html';
+            
+            // After loading, focus on the iframe so it can capture keyboard inputs
+            setTimeout(function() {
+                document.getElementById('game-canvas').focus();
+            }, 2000);
+        });
+    </script>
+</body>
+</html> 
