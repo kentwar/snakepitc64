@@ -7,21 +7,22 @@
             font-family: Arial, sans-serif;
             margin: 20px;
             line-height: 1.6;
-            background-color: #f0f0f0;
+            background-color: #222;
+            color: white;
         }
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background-color: white;
+            background-color: #333;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
         h1 {
-            color: #333;
+            color: #4CAF50;
         }
         h2 {
-            color: #555;
+            color: #aaa;
             margin-top: 30px;
         }
         .button {
@@ -34,104 +35,218 @@
             font-size: 16px;
             border-radius: 4px;
             cursor: pointer;
-            margin: 10px 0;
+            margin: 10px 5px;
         }
         .info {
-            background-color: #e7f3fe;
-            border-left: 6px solid #2196F3;
+            background-color: #444;
+            border-left: 6px solid #4CAF50;
             padding: 10px;
             margin: 10px 0;
         }
-        #browserInfo {
-            white-space: pre-wrap;
-            background-color: #f9f9f9;
+        .warning {
+            background-color: #444;
+            border-left: 6px solid #FFC107;
             padding: 10px;
-            border: 1px solid #ddd;
+            margin: 10px 0;
+        }
+        #browserInfo, #errorDisplay {
+            white-space: pre-wrap;
+            background-color: #222;
+            padding: 10px;
+            border: 1px solid #444;
             border-radius: 4px;
+            margin-top: 10px;
+        }
+        .test-button {
+            margin: 5px;
+            padding: 8px 15px;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .test-button:hover {
+            background-color: #666;
+        }
+        #errorDisplay {
+            color: #FF6347;
+            min-height: 100px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        @media (max-width: 600px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Snakepit - Debug Page</h1>
+        <h1>Snakepit - Diagnostics & Troubleshooting</h1>
         
         <div class="info">
-            This page helps diagnose issues with the Snakepit game running in web browsers.
+            This page helps diagnose issues with the Snakepit game in your browser and suggests solutions.
         </div>
         
         <h2>Browser Information</h2>
         <div id="browserInfo"></div>
         
-        <h2>WebAssembly Support</h2>
-        <div id="wasmSupport"></div>
+        <h2>Web Technologies Support</h2>
+        <div id="techSupport"></div>
         
-        <h2>Actions</h2>
-        <a href="index.html" class="button">Launch Game</a>
-        <a href="https://github.com/kentwar/snakepitc64" class="button">View Source Code</a>
+        <h2>JavaScript Error Catcher</h2>
+        <p>Click the button below to load the game's JavaScript in a controlled environment:</p>
+        <button id="testScriptButton" class="test-button">Test Pygbag Script Loading</button>
+        <div id="errorDisplay">Error messages will appear here...</div>
         
-        <h2>Troubleshooting</h2>
+        <h2>Try Alternative Versions</h2>
+        <div class="grid">
+            <div>
+                <h3>Web Versions</h3>
+                <a href="manual.html" class="button">Manual Version</a>
+                <a href="backup.html" class="button">JavaScript Fallback</a>
+                <a href="index.html" class="button">Original Version</a>
+            </div>
+            <div>
+                <h3>Other Options</h3>
+                <a href="direct.html" class="button">Download Game</a>
+                <a href="index2.html" class="button">All Options</a>
+                <a href="https://github.com/kentwar/snakepitc64/issues" class="button">Report Issue</a>
+            </div>
+        </div>
+        
+        <h2>Known Issues & Solutions</h2>
+        <div class="warning">
+            <strong>Assignment to constant variable error:</strong> This is a known issue with the Pygbag framework. Try using the Manual Version or JavaScript Fallback version instead.
+        </div>
+        
         <ul>
-            <li>If the game shows a black screen, try clicking on the canvas or refreshing the page.</li>
-            <li>Make sure you're using a modern browser with WebAssembly support.</li>
-            <li>If using Safari on iOS, make sure JavaScript is enabled.</li>
-            <li>Try disabling any content blockers or browser extensions.</li>
-            <li>Check your browser's console for error messages (F12 or right-click > Inspect > Console).</li>
+            <li><strong>Black screen or no response:</strong> Try clicking on the game area to give it focus, or refresh the page.</li>
+            <li><strong>Game loads but doesn't respond to keys:</strong> Click on the game canvas to ensure it has keyboard focus.</li>
+            <li><strong>Slow performance:</strong> The web version uses WebAssembly which may be slower on some devices. Try the local version.</li>
+            <li><strong>Mobile compatibility:</strong> The game is primarily designed for keyboard input. Touch controls are limited.</li>
         </ul>
         
-        <h2>Compatible Browsers</h2>
+        <h2>Browser Compatibility</h2>
+        <p>For best results, use one of these modern browsers:</p>
         <ul>
-            <li>Chrome 57+</li>
-            <li>Firefox 53+</li>
-            <li>Safari 11+</li>
-            <li>Edge 16+</li>
-            <li>Opera 44+</li>
+            <li>Google Chrome (latest version) - <strong>Recommended</strong></li>
+            <li>Firefox (74+)</li>
+            <li>Edge (79+)</li>
+            <li>Safari (13.1+) - <em>May have limited compatibility</em></li>
         </ul>
+        
+        <p style="margin-top: 30px; text-align: center;">
+            <a href="index2.html" class="button">Return to Game Options</a>
+        </p>
     </div>
     
     <script>
         // Display browser information
         function getBrowserInfo() {
             const browserInfo = document.getElementById('browserInfo');
-            browserInfo.innerHTML = `
-User Agent: ${navigator.userAgent}
+            browserInfo.innerHTML = `User Agent: ${navigator.userAgent}
 Platform: ${navigator.platform}
 Languages: ${navigator.languages || navigator.language}
 Cookies Enabled: ${navigator.cookieEnabled}
 Online: ${navigator.onLine}
-Screen Resolution: ${window.screen.width} x ${window.screen.height}
-Window Size: ${window.innerWidth} x ${window.innerHeight}
-Device Pixel Ratio: ${window.devicePixelRatio}
-`;
+Screen: ${window.screen.width} x ${window.screen.height} (${window.devicePixelRatio}x ratio)
+Window: ${window.innerWidth} x ${window.innerHeight}`;
         }
         
-        // Check WebAssembly support
-        function checkWasmSupport() {
-            const wasmSupport = document.getElementById('wasmSupport');
+        // Check technologies support
+        function checkTechSupport() {
+            const techSupport = document.getElementById('techSupport');
+            let html = '';
+            
+            // WebAssembly
             if (typeof WebAssembly === 'object') {
-                wasmSupport.innerHTML = '<p style="color: green;">✅ WebAssembly is supported in this browser.</p>';
-                
-                // Check for dynamic import support
-                try {
-                    new Function('return import("")');
-                    wasmSupport.innerHTML += '<p style="color: green;">✅ Dynamic imports are supported.</p>';
-                } catch (e) {
-                    wasmSupport.innerHTML += '<p style="color: red;">❌ Dynamic imports are NOT supported.</p>';
-                }
-                
-                // Check for SharedArrayBuffer support
-                if (typeof SharedArrayBuffer !== 'undefined') {
-                    wasmSupport.innerHTML += '<p style="color: green;">✅ SharedArrayBuffer is supported.</p>';
-                } else {
-                    wasmSupport.innerHTML += '<p style="color: red;">❌ SharedArrayBuffer is NOT supported.</p>';
-                }
+                html += '<p style="color: #4CAF50;">✅ WebAssembly is supported.</p>';
             } else {
-                wasmSupport.innerHTML = '<p style="color: red;">❌ WebAssembly is NOT supported in this browser. The game will not run.</p>';
+                html += '<p style="color: #FF6347;">❌ WebAssembly is NOT supported. The game will not run.</p>';
             }
+            
+            // ES6 Features
+            try {
+                new Function('return class Test {}')();
+                html += '<p style="color: #4CAF50;">✅ ES6 classes are supported.</p>';
+            } catch (e) {
+                html += '<p style="color: #FF6347;">❌ ES6 classes are NOT supported.</p>';
+            }
+            
+            try {
+                new Function('return async function test() {}')();
+                html += '<p style="color: #4CAF50;">✅ Async/await is supported.</p>';
+            } catch (e) {
+                html += '<p style="color: #FF6347;">❌ Async/await is NOT supported.</p>';
+            }
+            
+            // SharedArrayBuffer (needed for some WebAssembly features)
+            if (typeof SharedArrayBuffer !== 'undefined') {
+                html += '<p style="color: #4CAF50;">✅ SharedArrayBuffer is supported.</p>';
+            } else {
+                html += '<p style="color: #FF6347;">❌ SharedArrayBuffer is NOT supported (may affect performance).</p>';
+            }
+            
+            // Canvas
+            if (document.createElement('canvas').getContext) {
+                html += '<p style="color: #4CAF50;">✅ Canvas is supported.</p>';
+            } else {
+                html += '<p style="color: #FF6347;">❌ Canvas is NOT supported. The game will not run.</p>';
+            }
+            
+            techSupport.innerHTML = html;
         }
+        
+        // Test script loading
+        document.getElementById('testScriptButton').addEventListener('click', function() {
+            const errorDisplay = document.getElementById('errorDisplay');
+            errorDisplay.innerHTML = "Testing Pygbag script loading...\n";
+            
+            // Capture errors
+            window.onerror = function(message, source, lineno, colno, error) {
+                errorDisplay.innerHTML += `Error: ${message}\nAt: ${source}:${lineno}:${colno}\n\n`;
+                return true;
+            };
+            
+            // Load the script
+            try {
+                const script = document.createElement('script');
+                script.src = "https://pygame-web.github.io/archives/0.8/pythons.js";
+                script.setAttribute('data-ume_block', '1');  // Try to block auto execution
+                script.setAttribute('data-can_close', '1');
+                script.setAttribute('data-autorun', '0');
+                
+                script.onload = function() {
+                    errorDisplay.innerHTML += "Script loaded successfully but may still have internal errors.\n";
+                };
+                
+                script.onerror = function() {
+                    errorDisplay.innerHTML += "Failed to load the script. Check your internet connection.\n";
+                };
+                
+                document.head.appendChild(script);
+                
+                // Remove the script after 5 seconds
+                setTimeout(function() {
+                    document.head.removeChild(script);
+                    errorDisplay.innerHTML += "\nScript test completed and removed.\n";
+                    errorDisplay.innerHTML += "If you see 'Assignment to constant variable' errors above, use the Manual Version instead.\n";
+                }, 5000);
+                
+            } catch (e) {
+                errorDisplay.innerHTML += `Exception: ${e.message}\n`;
+            }
+        });
         
         // Run diagnostics
         getBrowserInfo();
-        checkWasmSupport();
+        checkTechSupport();
     </script>
 </body>
 </html> 
