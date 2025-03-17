@@ -5,7 +5,7 @@ Loading massdb8 from massdb8.apk
     Pygbag Version : 0.9.2
     Template Version : 0.9.0
     Python  : 3.12
-    CDN URL : https://pygame-web.github.io/archives/0.9/
+    CDN URL : https://pygame-web.github.io/archives/0.8/
     Screen  : 1280x720
     Title   : massdb8
     Folder  : massdb8
@@ -61,6 +61,9 @@ async def custom_site():
 
     import embed
 
+    # Define JavaScript constants
+    jsTrue = platform.window.eval("true")
+    jsFalse = platform.window.eval("false")
 
     platform.document.body.style.background = "#7f7f7f"
 
@@ -79,8 +82,8 @@ async def custom_site():
 
     compose()
 
-    platform.window.transfer.hidden = true;
-    platform.window.canvas.style.visibility = "visible";
+    platform.window.transfer.hidden = jsTrue
+    platform.window.canvas.style.visibility = "visible"
 
 
 
@@ -246,6 +249,10 @@ var config = {
     PYBUILD: "3.12"
 };
 
+// Fix for "Assignment to constant variable" error
+window.PyConfig = window.PyConfig || {};
+window.PyConfig.config = config;
+window.PyConfig.autorun = config.autorun;
 </script>
 
     <title>massdb8</title>
