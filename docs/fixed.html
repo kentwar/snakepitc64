@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snakepit C64 - Fixed Version</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #111;
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-top: 20px;
+        }
+        h1 {
+            color: #4CAF50;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #aaa;
+            margin-bottom: 20px;
+        }
+        #gameContainer {
+            width: 800px;
+            height: 600px;
+            position: relative;
+            border: 4px solid #333;
+            background-color: #000;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        #loadingMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: white;
+        }
+        #controls {
+            margin-top: 20px;
+            background-color: #222;
+            padding: 15px;
+            border-radius: 8px;
+            width: 800px;
+            text-align: center;
+        }
+        .info {
+            background-color: #444;
+            border-left: 6px solid #4CAF50;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 14px;
+            text-align: left;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .navigation {
+            margin-top: 20px;
+        }
+        .navigation a {
+            color: #4CAF50;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .navigation a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snakepit C64</h1>
+    <div class="subtitle">Original Python Version with JavaScript Fix</div>
+    
+    <div id="gameContainer">
+        <div id="loadingMessage">Loading Python game...</div>
+    </div>
+    
+    <div id="controls">
+        <button id="startButton">Start Game</button>
+        <button id="reloadButton">Reload</button>
+        
+        <div class="info">
+            <p><strong>Controls:</strong> Arrow keys to move, P to pause, ESC to quit</p>
+            <p><strong>Note:</strong> Click on the game area to capture keyboard focus</p>
+        </div>
+    </div>
+    
+    <div class="navigation">
+        <a href="index2.html">Back to Options</a> | 
+        <a href="debug.html">Troubleshooting</a>
+    </div>
+    
+    <script>
+        // Function to create a patched version of the pythons.js script
+        function loadPatchedPythonsJs() {
+            return new Promise((resolve, reject) => {
+                // First, load the original script to intercept and patch
+                fetch('https://pygame-web.github.io/archives/0.8/pythons.js')
+                    .then(response => response.text())
+                    .then(originalCode => {
+                        // Patch the code that causes "Assignment to constant variable" error
+                        let patchedCode = originalCode;
+                        
+                        // Replace 'const' with 'let' in the problematic sections
+                        patchedCode = patchedCode.replace(
+                            /const\s+auto_start\s*=\s*async\s*function/g, 
+                            'let auto_start = async function'
+                        );
+                        
+                        // Patch const variables in auto_conf and other areas
+                        patchedCode = patchedCode.replace(
+                            /const\s+auto_conf\s*=\s*function/g, 
+                            'let auto_conf = function'
+                        );
+                        
+                        // Create a blob and URL for the patched script
+                        const blob = new Blob([patchedCode], {type: 'application/javascript'});
+                        const scriptURL = URL.createObjectURL(blob);
+                        
+                        // Create script element for the patched code
+                        const scriptElement = document.createElement('script');
+                        scriptElement.src = scriptURL;
+                        scriptElement.onload = () => {
+                            console.log("Patched pythons.js loaded successfully");
+                            resolve();
+                        };
+                        scriptElement.onerror = (error) => {
+                            console.error("Failed to load patched script", error);
+                            reject(error);
+                        };
+                        
+                        // Add to document to execute
+                        document.head.appendChild(scriptElement);
+                    })
+                    .catch(error => {
+                        console.error("Error fetching original script:", error);
+                        reject(error);
+                    });
+            });
+        }
+        
+        // Function to create and load the iframe
+        function setupGame() {
+            const gameContainer = document.getElementById('gameContainer');
+            const loadingMessage = document.getElementById('loadingMessage');
+            
+            // Create iframe for the game
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            iframe.style.border = 'none';
+            iframe.style.display = 'none'; // Hide initially
+            
+            // Create the content for the iframe
+            const iframeContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Snakepit C64</title>
+                    <style>
+                        body { margin: 0; overflow: hidden; background-color: #000; }
+                    </style>
+                </head>
+                <body>
+                    <script 
+                        id="pygbag"
+                        type="application/javascript"
+                        src="https://pygame-web.github.io/archives/0.8/pythons.js"
+                        data-archive="massdb8"
+                        data-ume_block="0"
+                        data-can_close="1"
+                        data-autorun="0"
+                        data-gui_debug="0"
+                        data-PYBUILD="3.12"
+                    ></script>
+                </body>
+                </html>
+            `;
+            
+            // Game started flag
+            let gameStarted = false;
+            
+            // Add the iframe to the page
+            gameContainer.appendChild(iframe);
+            
+            // Use the start button to control the game
+            document.getElementById('startButton').addEventListener('click', () => {
+                if (!gameStarted) {
+                    loadingMessage.style.display = 'none';
+                    iframe.style.display = 'block';
+                    
+                    // Write the content to the iframe
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    iframeDoc.open();
+                    iframeDoc.write(iframeContent);
+                    iframeDoc.close();
+                    
+                    // Mark game as started
+                    gameStarted = true;
+                    
+                    // Update button text
+                    document.getElementById('startButton').textContent = 'Game Running';
+                    document.getElementById('startButton').disabled = true;
+                } else {
+                    // Game is already running
+                    iframe.focus();
+                }
+            });
+            
+            // Reload button
+            document.getElementById('reloadButton').addEventListener('click', () => {
+                location.reload();
+            });
+        }
+        
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPatchedPythonsJs()
+                .then(() => {
+                    console.log("Patched script loaded, setting up game...");
+                    setupGame();
+                })
+                .catch(err => {
+                    document.getElementById('loadingMessage').innerHTML = 
+                        `Error loading patched script: <br>${err}<br><br>
+                        Please try the <a href="index.html" style="color:#4CAF50;">original version</a> or 
+                        <a href="backup.html" style="color:#4CAF50;">fallback version</a>`;
+                });
+        });
+    </script>
+</body>
+</html> 
