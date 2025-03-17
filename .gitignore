@@ -5,8 +5,9 @@ __pycache__/
 *.so
 .Python
 env/
-build/
-develop-eggs/
+# Allow build/web for GitHub Pages
+build/*
+!build/web/
 dist/
 downloads/
 eggs/
