@@ -9,6 +9,7 @@ import sys
 import webbrowser
 import time
 import shutil
+import re
 from pathlib import Path
 
 def check_pygbag():
@@ -32,6 +33,30 @@ def check_pygbag():
             print("❌ Failed to install Pygbag. Please install manually with:")
             print("   pip install pygbag")
             return False
+
+
+def modify_html_config(html_file):
+    """Modify the HTML file to enable autorun."""
+    print(f"Modifying {html_file}...")
+    
+    # Read the HTML file
+    with open(html_file, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Replace autorun : 0 with autorun : 1
+    modified_content = re.sub(
+        r'autorun\s*:\s*0',
+        'autorun : 1',
+        content
+    )
+    
+    # Write the modified content back to the file
+    with open(html_file, 'w', encoding='utf-8') as f:
+        f.write(modified_content)
+    
+    print(f"✓ Modified {html_file} to enable autorun")
+    
+    return True
 
 
 def deploy_game():
@@ -82,6 +107,9 @@ def deploy_game():
         # Check if the necessary files exist
         if (build_dir / "index.html").exists():
             print("✓ Web files generated successfully")
+            
+            # Modify the HTML file to enable autorun
+            modify_html_config(build_dir / "index.html")
             
             # Also copy files to docs directory for GitHub Pages
             docs_dir = Path("docs")
