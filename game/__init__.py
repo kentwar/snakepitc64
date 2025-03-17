@@ -1,0 +1,3 @@
+"""
+Snakepit game package.
+""" 
