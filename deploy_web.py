@@ -43,10 +43,18 @@ def deploy_game():
     build_dir.parent.mkdir(exist_ok=True)
     build_dir.mkdir(exist_ok=True)
     
-    # Run pygbag directly with subprocess.Popen to avoid hanging
+    # Run pygbag with auto-start configuration
     print("Starting pygbag build process...")
     process = subprocess.Popen(
-        [sys.executable, "-m", "pygbag", "--build", "main.py"],
+        [
+            sys.executable, 
+            "-m", 
+            "pygbag", 
+            "--build",
+            "--ume_block", "0",  # Disable user media engagement block
+            "--can_close", "1",  # Allow closing the game
+            "main.py"
+        ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
