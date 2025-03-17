@@ -8,6 +8,7 @@ import subprocess
 import sys
 import webbrowser
 import time
+import shutil
 from pathlib import Path
 
 def check_pygbag():
@@ -74,18 +75,28 @@ def deploy_game():
         if (build_dir / "index.html").exists():
             print("✓ Web files generated successfully")
             
+            # Also copy files to docs directory for GitHub Pages
+            docs_dir = Path("docs")
+            docs_dir.mkdir(exist_ok=True)
+            
+            print("\nCopying files to docs directory for GitHub Pages...")
+            for file in build_dir.glob("*"):
+                dest_file = docs_dir / file.name
+                shutil.copy2(file, dest_file)
+            print("✓ Files copied to docs directory")
+            
             # Show deployment instructions
             print("\n📋 Free Hosting Options:")
             print("\n1. GitHub Pages (Recommended):")
             print("   - Push your code to GitHub")
             print("   - Go to repository Settings → Pages")
             print("   - Set source to 'Deploy from a branch'")
-            print("   - Select 'main' branch and '/build/web' folder")
+            print("   - Select 'main' branch and '/docs' folder")
             print("   - Your game will be at: https://[username].github.io/[repo]")
             
             print("\n2. Netlify Drop (Easiest):")
             print("   - Go to app.netlify.com/drop")
-            print("   - Drag and drop the build/web directory")
+            print("   - Drag and drop the build/web or docs directory")
             
             print("\nAll options provide:")
             print("✓ HTTPS security")
